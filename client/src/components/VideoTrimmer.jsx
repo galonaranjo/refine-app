@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
@@ -8,10 +9,7 @@ function VideoTrimmer({ file }) {
   const [trimRange, setTrimRange] = useState([0, 0]);
   const [duration, setDuration] = useState(0);
   const videoRef = useRef(null);
-  const ffmpeg = createFFmpeg({
-    log: true,
-    corePath: "https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js",
-  });
+  const ffmpegRef = useRef(new FFmpeg());
 
   // Handle video load
   const handleLoadedMetadata = useCallback(() => {
@@ -26,13 +24,21 @@ function VideoTrimmer({ file }) {
   const handleTrim = async () => {
     try {
       setLoading(true);
-      await ffmpeg.load();
+      const ffmpeg = ffmpegRef.current;
+
+      // Load FFmpeg if not already loaded
+      if (!ffmpeg.loaded) {
+        await ffmpeg.load({
+          coreURL: await toBlobURL("/node_modules/@ffmpeg/core/dist/ffmpeg-core.js", "text/javascript"),
+          wasmURL: await toBlobURL("/node_modules/@ffmpeg/core/dist/ffmpeg-core.wasm", "application/wasm"),
+        });
+      }
 
       // Write the file to FFmpeg's file system
-      ffmpeg.FS("writeFile", "input.mp4", await fetchFile(file));
+      await ffmpeg.writeFile("input.mp4", await fetchFile(file));
 
       // Trim the video
-      await ffmpeg.run(
+      await ffmpeg.exec([
         "-i",
         "input.mp4",
         "-ss",
@@ -40,12 +46,12 @@ function VideoTrimmer({ file }) {
         "-t",
         (trimRange[1] - trimRange[0]).toString(),
         "-c",
-        "copy", // This copies the streams without re-encoding
-        "output.mp4"
-      );
+        "copy",
+        "output.mp4",
+      ]);
 
       // Read the result
-      const data = ffmpeg.FS("readFile", "output.mp4");
+      const data = await ffmpeg.readFile("output.mp4");
       const trimmedVideo = new Blob([data.buffer], { type: "video/mp4" });
 
       // Create download link
@@ -54,6 +60,9 @@ function VideoTrimmer({ file }) {
       a.href = url;
       a.download = "trimmed-video.mp4";
       a.click();
+
+      // Cleanup
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error trimming video:", error);
       alert("Error trimming video. Please try again.");

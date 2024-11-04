@@ -1,9 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import VideoTrimmer from "./VideoTrimmer";
+import VideoPlayer from "./VideoPlayer";
 
 function VideoUpload() {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [videoKey, setVideoKey] = useState(0);
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
 
   const handleFileSelect = useCallback((event) => {
@@ -21,8 +23,9 @@ function VideoUpload() {
       alert("File size should be less than 100MB");
       return;
     }
-
+    event.target.value = ""; //Clear the input value to ensure change event fires
     setSelectedFile(file);
+    setVideoKey((prev) => prev + 1);
   }, []);
 
   const triggerFileInput = useCallback(() => {
@@ -54,9 +57,12 @@ function VideoUpload() {
         </button>
       ) : (
         <div className="space-y-4">
-          <VideoTrimmer file={selectedFile} />
+          <VideoPlayer key={videoKey} file={selectedFile} />
           <button
-            onClick={() => setSelectedFile(null)}
+            onClick={() => {
+              setSelectedFile(null);
+              triggerFileInput();
+            }}
             className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
             Choose Different Video
           </button>
