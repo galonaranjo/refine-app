@@ -7,9 +7,7 @@ import VideoUpload from "./components/VideoUpload.jsx";
 function App() {
   return (
     <>
-      <div className="card">
-        <VideoUpload />
-      </div>
+      <VideoUpload />
     </>
   );
 }

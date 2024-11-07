@@ -10,8 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ffmpeg/core": "^0.12.4",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
+    "@heroicons/react": "^2.1.5",
+    "cloudinary": "^1.41.3",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
     "rc-slider": "^11.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

@@ -12,6 +12,7 @@
     "build": "cd client && npm run build"
   },
   "dependencies": {
-    "concurrently": "^8.0.0"
+    "concurrently": "^8.0.0",
+    "cors": "^2.8.5"
   }
 }
