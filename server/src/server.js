@@ -4,6 +4,7 @@ import cors from "cors";
 import cloudinary from "./config/cloudinary.js";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import crypto from "crypto";
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,7 @@ console.log("Cloudinary Config Status:", {
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
+    public_id: (req, file) => crypto.randomUUID(),
     resource_type: "video",
     allowed_formats: ["mp4", "mov", "avi", "wmv"],
   },
@@ -31,11 +33,12 @@ app.post("/api/upload", upload.single("video"), async (req, res) => {
       return res.status(400).json({ error: "No video file provided" });
     }
 
-    console.log("Upload successful:", req.file);
+    const coachingUrl = `/feedback/${req.file.filename}`;
 
     res.json({
       success: true,
       url: req.file.path,
+      coachingUrl: coachingUrl,
       public_id: req.file.filename,
       format: req.file.format,
     });
@@ -45,6 +48,30 @@ app.post("/api/upload", upload.single("video"), async (req, res) => {
       error: "Upload failed",
       details: error.message,
     });
+  }
+});
+
+app.get("/api/feedback/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Search Cloudinary for the video using the public_id (which is our uniqueId)
+    const result = await cloudinary.api.resource(id, { resource_type: "video" });
+
+    if (!result) {
+      return res.status(404).json({ error: "Video not found" });
+    }
+
+    res.json({
+      url: result.secure_url,
+      public_id: result.public_id,
+      format: result.format,
+      duration: result.duration,
+      created_at: result.created_at,
+    });
+  } catch (error) {
+    console.error("Error fetching video:", error);
+    res.status(404).json({ error: "Video not found" });
   }
 });
 

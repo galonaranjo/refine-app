@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import VideoTrimmer from "./VideoTrimmer";
 import VideoPlayer from "./VideoPlayer";
+import VideoSuccess from "./VideoSuccess";
 
 function VideoUpload() {
   //**********************************************************/
@@ -90,6 +91,26 @@ function VideoUpload() {
   //**********************************************************/
   //******************** Render ********************//
   //**********************************************************/
+
+  {
+    /* Video Success and Generated Link */
+  }
+  if (uploadedUrl) {
+    return (
+      <div className="space-y-6">
+        <VideoSuccess url={uploadedUrl} coachingUrl={data.coachingUrl} />
+        <button
+          onClick={() => {
+            setUploadedUrl(null);
+            setSelectedFile(null);
+          }}
+          className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+          Upload Another Video
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Hidden File Input */}

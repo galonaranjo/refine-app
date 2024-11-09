@@ -1,14 +1,15 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import VideoUpload from "./components/VideoUpload.jsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import VideoUpload from "./components/VideoUpload";
+import CoachingFeedback from "./components/CoachingFeedback";
 
 function App() {
   return (
-    <>
-      <VideoUpload />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<VideoUpload />} />
+        <Route path="/feedback/:id" element={<CoachingFeedback />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
