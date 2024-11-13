@@ -7,9 +7,7 @@ export default defineConfig({
   css: {
     postcss: "./postcss.config.js",
   },
-  optimizeDeps: {
-    exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util", "@ffmpeg/core"],
-  },
+  optimizeDeps: {},
   server: {
     proxy: {
       "/api": {

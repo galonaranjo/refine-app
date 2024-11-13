@@ -1,25 +1,23 @@
-import { useState, useCallback, useRef } from "react";
-import VideoTrimmer from "./VideoTrimmer";
-import VideoPlayer from "./VideoPlayer";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 function VideoUpload() {
-  //**********************************************************/
-  //******************** State and Refs ********************//
-  //**********************************************************/
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [videoKey, setVideoKey] = useState(0);
-  const [mode, setMode] = useState("play"); // 'play' or 'trim'
+  const [videoUrl, setVideoUrl] = useState("");
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadedUrl, setUploadedUrl] = useState(null);
 
-  //**********************************************************/
-  //******************** File Handling ********************//
-  //**********************************************************/
+  // Create and cleanup video URL when file changes
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setVideoUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [selectedFile]);
+
   const handleFileSelect = useCallback((event) => {
     const file = event.target.files[0];
-
     if (!file) return;
 
     if (!file.type.startsWith("video/")) {
@@ -32,28 +30,16 @@ function VideoUpload() {
       alert("File size should be less than 100MB");
       return;
     }
-    event.target.value = ""; //Clear the input value to ensure change event fires
+
+    event.target.value = "";
     setSelectedFile(file);
-    setVideoKey((prev) => prev + 1);
   }, []);
 
-  //**********************************************************/
-  //******************** UI Interactions ********************//
-  //**********************************************************/
   const triggerFileInput = useCallback(() => {
-    if (isMobile) {
-      fileInputRef.current.accept = "video/*";
-      fileInputRef.current.capture = false;
-    } else {
-      fileInputRef.current.accept = "video/*";
-    }
     fileInputRef.current.click();
-  }, [isMobile]);
+  }, []);
 
-  //**********************************************************/
-  //******************** API Integration ********************//
-  //**********************************************************/
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!selectedFile) {
       alert("Please select a video file first");
       return;
@@ -75,34 +61,21 @@ function VideoUpload() {
         throw new Error(data.error || "Upload failed");
       }
 
-      setUploadedUrl(data.url);
       alert("Video uploaded successfully!");
       setSelectedFile(null);
-      setVideoKey((prev) => prev + 1);
+      setVideoUrl("");
     } catch (error) {
       console.error("Upload error:", error);
       alert(error.message || "Failed to upload video. Please try again.");
     } finally {
       setIsUploading(false);
     }
-  };
+  }, [selectedFile]);
 
-  //**********************************************************/
-  //******************** Render ********************//
-  //**********************************************************/
   return (
     <div className="space-y-6">
-      {/* Hidden File Input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileSelect}
-        className="hidden"
-        accept="video/*"
-        capture={false}
-      />
+      <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="video/*" />
 
-      {/* File Selection UI */}
       {!selectedFile ? (
         <button
           onClick={triggerFileInput}
@@ -111,28 +84,24 @@ function VideoUpload() {
         </button>
       ) : (
         <div className="space-y-4">
-          {/* Video Player Component */}
-          <VideoPlayer key={videoKey} file={selectedFile} mode={mode} onModeChange={setMode} />
-
-          {/* Control Buttons */}
+          <div className="relative h-[70vh]">
+            <video src={videoUrl} className="w-full h-full object-contain rounded-lg" controls />
+          </div>
           <div className="flex justify-center space-x-4">
             <button
               onClick={() => {
                 setSelectedFile(null);
+                setVideoUrl("");
                 triggerFileInput();
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
               Choose Different Video
             </button>
             <button
-              onClick={() => setMode(mode === "play" ? "trim" : "play")}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-              {mode === "play" ? "Trim Video" : "Cancel Trim"}
-            </button>
-            <button
               onClick={handleSubmit}
-              className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
-              Submit
+              disabled={isUploading}
+              className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:bg-gray-400">
+              {isUploading ? "Uploading..." : "Submit"}
             </button>
           </div>
         </div>
