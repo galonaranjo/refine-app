@@ -16,10 +16,6 @@ export default defineConfig({
         secure: false,
       },
     },
-    headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin",
-    },
   },
   publicDir: "public",
 });

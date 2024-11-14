@@ -14,5 +14,8 @@
   "dependencies": {
     "concurrently": "^8.0.0",
     "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
   }
 }

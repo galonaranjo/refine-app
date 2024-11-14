@@ -6,7 +6,22 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const app = express();
-app.use(cors());
+
+// Update CORS configuration
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
+// Add headers middleware
+app.use((req, res, next) => {
+  res.header("Cross-Origin-Resource-Policy", "cross-origin");
+  res.header("Cross-Origin-Embedder-Policy", "credentialless");
+  res.header("Cross-Origin-Opener-Policy", "same-origin");
+  next();
+});
 
 // Verify Cloudinary credentials are loaded
 console.log("Cloudinary Config Status:", {
@@ -33,9 +48,12 @@ app.post("/api/upload", upload.single("video"), async (req, res) => {
 
     console.log("Upload successful:", req.file);
 
+    // Create shareableUrl using the full Cloudinary URL
+    const shareableUrl = `/feedback?video=${req.file.path}`;
+    console.log(shareableUrl);
     res.json({
       success: true,
-      url: req.file.path,
+      shareableUrl,
       public_id: req.file.filename,
       format: req.file.format,
     });
