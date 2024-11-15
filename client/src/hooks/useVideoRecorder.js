@@ -1,11 +1,41 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function useVideoRecorder(videoRef) {
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
+  const [audioLevel, setAudioLevel] = useState(0);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const audioStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+
+  useEffect(() => {
+    let animationFrame;
+
+    const updateAudioLevel = () => {
+      if (analyserRef.current && isRecording) {
+        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+        analyserRef.current.getByteFrequencyData(dataArray);
+
+        // Calculate average volume level
+        const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+        setAudioLevel(average / 255); // Normalize to 0-1
+
+        animationFrame = requestAnimationFrame(updateAudioLevel);
+      }
+    };
+
+    if (isRecording) {
+      updateAudioLevel();
+    }
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [isRecording]);
 
   const startRecording = async () => {
     try {
@@ -15,6 +45,13 @@ export function useVideoRecorder(videoRef) {
         noiseSuppression: true,
       });
       audioStreamRef.current = audioStream;
+
+      // Set up audio analysis
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(audioStream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      source.connect(analyserRef.current);
 
       const videoElement = videoRef.current;
       const videoStream = videoElement.captureStream();
@@ -78,5 +115,6 @@ export function useVideoRecorder(videoRef) {
     error,
     startRecording,
     stopRecording,
+    audioLevel,
   };
 }
