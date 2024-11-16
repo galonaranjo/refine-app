@@ -5,7 +5,11 @@ import cloudinary from "./config/cloudinary.js";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { apiLimiter, uploadLimiter, failedUploadLimiter } from "./middleware/rateLimiter.js";
-import { validateFileSize } from "./middleware/fileValidation.js";
+import {
+  validateFileSize,
+  validateFileType,
+  validateFileName,
+} from "./middleware/fileValidation.js";
 
 const app = express();
 
@@ -64,6 +68,8 @@ app.post(
   uploadLimiter,
   validateFileSize,
   upload.single("video"),
+  validateFileType,
+  validateFileName,
   async (req, res) => {
     try {
       if (!req.file) {

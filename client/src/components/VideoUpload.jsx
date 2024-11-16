@@ -6,6 +6,7 @@ function VideoUpload() {
   const [videoUrl, setVideoUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [shareableUrl, setShareableUrl] = useState("");
+  const [aspectRatio, setAspectRatio] = useState(16 / 9);
 
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
 
@@ -60,18 +61,30 @@ function VideoUpload() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Upload failed");
+        const errorMessages = {
+          413: "File is too large (max 100MB)",
+          415: "Invalid file type",
+          429: "Too many uploads. Please try again later",
+          default: "Upload failed. Please try again",
+        };
+        throw new Error(errorMessages[response.status] || data.error || errorMessages.default);
       }
 
       const fullUrl = `${window.location.origin}${data.shareableUrl}`;
       setShareableUrl(fullUrl);
     } catch (error) {
       console.error("Upload error:", error);
-      alert(error.message || "Failed to upload video. Please try again.");
+      alert(error.message);
     } finally {
       setIsUploading(false);
     }
   }, [selectedFile]);
+
+  const handleVideoLoad = (event) => {
+    const video = event.target;
+    const ratio = video.videoWidth / video.videoHeight;
+    setAspectRatio(ratio);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -95,12 +108,26 @@ function VideoUpload() {
               </button>
             ) : (
               <div className="space-y-4">
-                <div className="relative h-[70vh]">
-                  <video
-                    src={videoUrl}
-                    className="w-full h-full object-contain rounded-lg"
-                    controls
-                  />
+                <div
+                  className={`relative mx-auto ${
+                    aspectRatio >= 1
+                      ? "w-[90vw] md:w-[80vw] lg:w-[70vw]" // landscape or square
+                      : ""
+                  }`}
+                >
+                  <div
+                    className="relative w-full bg-gray-900 rounded-lg overflow-hidden"
+                    style={{
+                      paddingTop: `${(1 / aspectRatio) * 100}%`,
+                    }}
+                  >
+                    <video
+                      src={videoUrl}
+                      className="absolute top-0 left-0 w-full h-full object-contain"
+                      controls
+                      onLoadedMetadata={handleVideoLoad}
+                    />
+                  </div>
                 </div>
                 <div className="flex justify-center space-x-4">
                   <button
