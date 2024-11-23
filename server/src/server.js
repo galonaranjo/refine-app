@@ -55,9 +55,7 @@ const storage = new CloudinaryStorage({
   params: {
     resource_type: "video",
     allowed_formats: ["mp4", "mov", "avi", "wmv"],
-    transformation: {
-      duration: "7d", // Set expiration to 7 days
-    },
+    transformation: [{ quality: "auto" }],
   },
 });
 
