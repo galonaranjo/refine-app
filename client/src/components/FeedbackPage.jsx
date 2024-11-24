@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import RecordButton from "./RecordButton";
+import VideoPlayer from "./VideoPlayer";
 
 function FeedbackPage() {
   const [searchParams] = useSearchParams();
@@ -14,15 +15,11 @@ function FeedbackPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="space-y-6">
-        <div className="relative h-[70vh] bg-gray-900 rounded-lg overflow-hidden">
-          <video
-            ref={videoRef}
-            src={videoUrl}
-            className="w-full h-full object-contain rounded-lg"
-            controls
-            playsInline
-            crossOrigin="anonymous"
+      <div className="space-y-8 w-full">
+        <div className="space-y-4">
+          <VideoPlayer
+            videoRef={videoRef}
+            videoUrl={videoUrl}
             onError={(e) => {
               console.error("Video error:", e);
               setError("Error loading video");
@@ -33,9 +30,9 @@ function FeedbackPage() {
               {error}
             </div>
           )}
-        </div>
 
-        <RecordButton videoRef={videoRef} />
+          <RecordButton videoRef={videoRef.current} />
+        </div>
       </div>
     </div>
   );

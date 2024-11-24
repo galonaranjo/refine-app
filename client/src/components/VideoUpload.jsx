@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import VideoPlayer from "./VideoPlayer";
 
 function VideoUpload() {
   const fileInputRef = useRef(null);
@@ -6,7 +7,6 @@ function VideoUpload() {
   const [videoUrl, setVideoUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [shareableUrl, setShareableUrl] = useState("");
-  const [aspectRatio, setAspectRatio] = useState(16 / 9);
 
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
 
@@ -80,15 +80,9 @@ function VideoUpload() {
     }
   }, [selectedFile]);
 
-  const handleVideoLoad = (event) => {
-    const video = event.target;
-    const ratio = video.videoWidth / video.videoHeight;
-    setAspectRatio(ratio);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="space-y-8">
+      <div className="space-y-8 w-full">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Refine</h1>
           <p className="text-gray-600 text-lg">Form Feedback Made Simple.</p>
@@ -112,27 +106,13 @@ function VideoUpload() {
               </button>
             ) : (
               <div className="space-y-4">
-                <div
-                  className={`relative mx-auto ${
-                    aspectRatio >= 1
-                      ? "w-[90vw] md:w-[80vw] lg:w-[70vw]" // landscape or square
-                      : ""
-                  }`}
-                >
-                  <div
-                    className="relative w-full bg-gray-900 rounded-lg overflow-hidden"
-                    style={{
-                      paddingTop: `${(1 / aspectRatio) * 100}%`,
-                    }}
-                  >
-                    <video
-                      src={videoUrl}
-                      className="absolute top-0 left-0 w-full h-full object-contain"
-                      controls
-                      onLoadedMetadata={handleVideoLoad}
-                    />
-                  </div>
-                </div>
+                <VideoPlayer
+                  videoUrl={videoUrl}
+                  onError={(e) => {
+                    console.error("Video error:", e);
+                    alert("Error loading video");
+                  }}
+                />
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={() => {
