@@ -18,13 +18,13 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? process.env.ALLOWED_ORIGINS.split(",")
+        ? process.env.ALLOWED_ORIGINS?.split(",") || ["https://refine.fly.dev"]
         : "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["Content-Range", "X-Content-Range"],
-    maxAge: 600, // Limit preflight requests cache to 10 minutes
+    maxAge: 600,
   })
 );
 
