@@ -86,7 +86,7 @@ function VideoUpload() {
       <div className="space-y-8 w-full">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Refine</h1>
-          <p className="text-gray-600 text-lg">Form Feedback Made Simple.</p>
+          <p className="text-gray-600 text-lg">Form Checks Made Ridiculously Simple.</p>
         </div>
         <input
           type="file"
@@ -144,29 +144,31 @@ function VideoUpload() {
             )}
           </>
         ) : (
-          <div className="p-4 bg-gray-100 rounded-lg max-w-md text-center">
-            <h3 className="font-bold">Video Successfully Uploaded!</h3>
-            <p className="mb-2 font-medium">Share this link with your coach:</p>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={shareableUrl}
-                readOnly
-                className="flex-1 p-2 border rounded"
-              />
-              <button
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(shareableUrl);
-                    alert("Link copied!");
-                  } catch (error) {
-                    alert("Please copy the link manually");
-                  }
-                }}
-                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
-              >
-                Copy
-              </button>
+          <div className="flex justify-center">
+            <div className="p-4 bg-gray-100 rounded-lg max-w-md text-center">
+              <h3 className="font-bold">Video Successfully Uploaded!</h3>
+              <p className="mb-2 font-medium">Share this link with your coach:</p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={shareableUrl}
+                  readOnly
+                  className="flex-1 p-2 border rounded"
+                />
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(shareableUrl);
+                      alert("Link copied!");
+                    } catch (error) {
+                      alert("Please copy the link manually");
+                    }
+                  }}
+                  className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
+                >
+                  Copy
+                </button>
+              </div>
             </div>
           </div>
         )}

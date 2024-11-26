@@ -3,6 +3,7 @@ import { useState } from "react";
 function VideoPlayer({ videoRef, videoUrl, onError, controls = true }) {
   const [aspectRatio, setAspectRatio] = useState(16 / 9);
 
+  //Checking aspect ratio to make sure video is easy to view on any screen.
   const handleVideoLoad = (event) => {
     const video = event.target;
     const ratio = video.videoWidth / video.videoHeight;
