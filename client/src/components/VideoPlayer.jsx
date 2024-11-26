@@ -10,11 +10,14 @@ function VideoPlayer({ videoRef, videoUrl, onError, controls = true }) {
   };
 
   return (
-    <div className="w-full max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw] mx-auto">
+    <div
+      className={`mx-auto ${aspectRatio < 1 ? "h-[70vh]" : "max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw]"}`}
+      style={aspectRatio < 1 ? { width: `${aspectRatio * 70}vh` } : {}}
+    >
       <div
-        className="relative w-full bg-gray-900 rounded-lg overflow-hidden"
+        className={`relative w-full bg-gray-900 rounded-lg overflow-hidden ${aspectRatio < 1 ? "h-full" : ""}`}
         style={{
-          paddingTop: `${(1 / aspectRatio) * 100}%`,
+          ...(aspectRatio >= 1 && { paddingTop: `${(1 / aspectRatio) * 100}%` }),
         }}
       >
         <video

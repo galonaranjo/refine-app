@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import VideoPlayer from "./VideoPlayer";
+import { Loader2 } from "lucide-react";
 
 function VideoUpload() {
   const fileInputRef = useRef(null);
@@ -127,16 +128,23 @@ function VideoUpload() {
                   <button
                     onClick={handleSubmit}
                     disabled={isUploading}
-                    className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:bg-gray-400"
+                    className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:bg-gray-400 flex items-center gap-2"
                   >
-                    {isUploading ? "Uploading..." : "Submit"}
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      "Submit"
+                    )}
                   </button>
                 </div>
               </div>
             )}
           </>
         ) : (
-          <div className="p-4 bg-gray-100 rounded-lg max-w-md w-full text-center">
+          <div className="p-4 bg-gray-100 rounded-lg max-w-md text-center">
             <h3 className="font-bold">Video Successfully Uploaded!</h3>
             <p className="mb-2 font-medium">Share this link with your coach:</p>
             <div className="flex items-center gap-2">
