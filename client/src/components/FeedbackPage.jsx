@@ -31,7 +31,7 @@ function FeedbackPage() {
             </div>
           )}
 
-          <RecordButton videoRef={videoRef.current} />
+          <RecordButton videoRef={videoRef} />
         </div>
       </div>
     </div>
