@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import VideoPlayer from "./VideoPlayer";
-import { Loader2 } from "lucide-react";
+import { Loader2, Copy, Check } from "lucide-react";
 
 function VideoUpload() {
   const fileInputRef = useRef(null);
@@ -8,6 +8,7 @@ function VideoUpload() {
   const [videoUrl, setVideoUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [shareableUrl, setShareableUrl] = useState("");
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
 
@@ -145,7 +146,7 @@ function VideoUpload() {
           </>
         ) : (
           <div className="flex justify-center">
-            <div className="p-4 bg-gray-100 rounded-lg max-w-md text-center">
+            <div className="p-4 rounded-lg max-w-md text-center">
               <h3 className="font-bold">Video Successfully Uploaded!</h3>
               <p className="mb-2 font-medium">Share this link with your coach:</p>
               <div className="flex items-center gap-2">
@@ -159,14 +160,24 @@ function VideoUpload() {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(shareableUrl);
-                      alert("Link copied!");
+                      setCopySuccess(true);
+                      setTimeout(() => setCopySuccess(false), 2000);
                     } catch (error) {
                       alert("Please copy the link manually");
                     }
                   }}
-                  className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
+                  className={`p-2 transition-all duration-200 flex items-center gap-2 ${
+                    copySuccess ? "text-green-600" : "text-gray-600 hover:text-black"
+                  }`}
+                  title="Copy to clipboard"
                 >
-                  Copy
+                  {copySuccess ? (
+                    <>
+                      <span className="text-sm animate-fade-in">Copied!</span>
+                    </>
+                  ) : (
+                    <Copy className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
